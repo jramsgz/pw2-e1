@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux'
+import { login, logout } from '../slices/authSlice'
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+
+    const dispatch = useDispatch()
+    const user = useSelector(state => state.auth.user)
+    console.log(user)
 
     const handleUsernameChange = (e) => {
         setUsername(e.target.value);
@@ -13,13 +19,14 @@ const Login = () => {
         setPassword(e.target.value);
     };
 
+    const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
         const form = new FormData(e.target);
         const data = Object.fromEntries(form.entries());
         login(data.username, data.password)
             .then(function (response) {
-                window.location.href = "home.html";
+                navigate("/");
             })
             .catch(function (error) {
                 alert(error.response.data.message);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Register = () => {
     const [username, setUsername] = useState('');
@@ -9,14 +10,14 @@ const Register = () => {
     const [roles, setRoles] = useState([]);
 
     useEffect(() => {
-        /*axios
-            .get("api/user/roles")
+        axios
+            .get("http://localhost:8080/api/user/roles")
             .then((response) => {
                 setRoles(response.data);
             })
             .catch((error) => {
                 console.log(error);
-            });*/
+            });
     }, []);
 
     const handleUsernameChange = (e) => {
