@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <div class="container main">
+      <div class="content">
+        <h3 class="text-center signin-text mb-3">Sign Up</h3>
+        <form onsubmit="handleSubmit()">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              name="password"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="confirm_password" class="form-label"
+              >Confirm Password</label
+            >
+            <input
+              type="password"
+              name="confirm_password"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="roles" class="form-label">Select your roles:</label>
+            <select
+              id="roles"
+              class="form-select"
+              name="roles"
+              multiple
+              aria-label="select roles"
+            >
+            </select>
+          </div>
+          <div class="mb-3">
+            <a href="index.html" class="link">Already registered? Sign in</a>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-class">Register</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script src="assets/js/axios.min.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script>
+      axios
+        .get("api/user/roles")
+        .then((response) => {
+          // Set the roles
+          document.getElementById("roles").innerHTML = response.data.map(
+            (role) => "<option value='" + role.name + "'>" + role.name + "</option>"
+          );
+        })
+        .catch((error) => {
+          // If there is an error, show it in the console
+          console.log(error);
+        });
+      function handleSubmit() {
+        event.preventDefault();
+        const form = new FormData(event.target);
+        const data = Object.fromEntries(form.entries());
+        const roles = Array.from(
+          document.getElementById("roles").selectedOptions
+        ).map(({ value }) => value);
+        register(
+          data.username,
+          data.email,
+          data.password,
+          data.confirm_password,
+          roles
+        )
+          .then(function (response) {
+            window.location.href = "index.html";
+          })
+          .catch(function (error) {
+            alert(error.response.data.message);
+          });
+      }
+    </script>
+  </body>
+</html>

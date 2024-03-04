@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <div class="container main">
+      <div class="content">
+        <h3 class="text-center signin-text mb-3">Sign In</h3>
+        <form onsubmit="handleSubmit()">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              name="password"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <a href="register.html" class="link">Not registered? Sign up</a>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-class">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script src="assets/js/axios.min.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script>
+      function handleSubmit() {
+        event.preventDefault();
+        const form = new FormData(event.target);
+        const data = Object.fromEntries(form.entries());
+        login(data.username, data.password)
+          .then(function (response) {
+            window.location.href = "home.html";
+          })
+          .catch(function (error) {
+            alert(error.response.data.message);
+          });
+      }
+    </script>
+  </body>
+</html>

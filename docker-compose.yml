@@ -1,0 +1,27 @@
+version: '3'
+
+volumes:
+  mariadb:
+    driver: local
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: toor
+      MYSQL_USER:  admin 
+      MYSQL_PASSWORD: toor
+    ports:
+        - "3306:3306"
+    volumes:
+     - mariadb:/var/lib/mysql
+              
+  phpmyadmin:
+    image: phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8086:80"
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_PORT=3306
