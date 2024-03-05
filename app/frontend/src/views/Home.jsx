@@ -8,7 +8,7 @@ const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch()
   const [user, setUser] = useState('');
-  const token = useSelector((state) => state.auth.user.accessToken);
+  const token = useSelector((state) => state.auth.user ? state.auth.user.accessToken : null);
   useEffect(() => {
     if (!token) {
       navigate("/");
