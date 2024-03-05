@@ -27,7 +27,7 @@ db.sequelize.sync();
 // });
 
 // Main route, serves static files from the frontend folder
-app.use('/', express.static('./app/views'));
+app.use('/', express.static('./app/frontend/dist'));
 
 // routes
 require('./app/routes/auth.routes')(app);

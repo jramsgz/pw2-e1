@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
-import { login, logout } from '../slices/authSlice'
+import { login } from '../slices/authSlice'
+import axios from "axios";
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    
+    const [errorMessages, setErrorMessages] = useState([]);
 
     const dispatch = useDispatch()
     const user = useSelector(state => state.auth.user)
-    console.log(user)
+
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (user) {
+            navigate("/");
+        }
+    }, [user, navigate]);
 
     const handleUsernameChange = (e) => {
         setUsername(e.target.value);
@@ -19,17 +28,20 @@ const Login = () => {
         setPassword(e.target.value);
     };
 
-    const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        const form = new FormData(e.target);
-        const data = Object.fromEntries(form.entries());
-        login(data.username, data.password)
-            .then(function (response) {
+        const data = {
+            username: username,
+            password: password
+        };
+        axios
+            .post(import.meta.env.VITE_API_URL + "/auth/signin", data)
+            .then((response) => {
+                dispatch(login(response.data));
                 navigate("/");
             })
-            .catch(function (error) {
-                alert(error.response.data.message);
+            .catch((error) => {
+                setErrorMessages([error.response.data.message]);
             });
     };
 
@@ -49,6 +61,11 @@ const Login = () => {
                     <div className="mb-3">
                         <Link to={"/register"} className="link">Not registered? Sign up</Link>
                     </div>
+                    {errorMessages.map((message, index) => (
+                        <div key={index} className="alert alert-danger" role="alert">
+                            {message}
+                        </div>
+                    ))}
                     <div className="text-center">
                         <button type="submit" className="btn btn-class">Login</button>
                     </div>

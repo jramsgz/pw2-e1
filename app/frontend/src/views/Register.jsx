@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from 'react-redux'
 import axios from "axios";
 
 const Register = () => {
@@ -7,13 +8,25 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [availableRoles, setAvailableRoles] = useState([]);
     const [roles, setRoles] = useState([]);
+
+    const [errorMessages, setErrorMessages] = useState([]);
+
+    const user = useSelector(state => state.auth.user)
+
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (user) {
+            navigate("/");
+        }
+    }, [user, navigate]);
 
     useEffect(() => {
         axios
-            .get("http://localhost:8080/api/user/roles")
+            .get(import.meta.env.VITE_API_URL + "/user/roles")
             .then((response) => {
-                setRoles(response.data);
+                setAvailableRoles(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -36,25 +49,49 @@ const Register = () => {
         setConfirmPassword(e.target.value);
     };
 
+    const handleRolesChange = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
+        setRoles(selectedOptions);
+    }
+
+    const validate = (username, email, password, confirmPassword) => {
+        let messages = [];
+        if (password !== confirmPassword) {
+            messages.push("Passwords do not match");
+        }
+        if (password.length < 6) {
+            messages.push("Password must be at least 6 characters long");
+        }
+        if (username.length < 3) {
+            messages.push("Username must be at least 3 characters long");
+        }
+        if (email.length < 3) {
+            messages.push("Email must be at least 3 characters long");
+        }
+        setErrorMessages(messages);
+        return messages.length === 0;
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        const form = new FormData(e.target);
-        const data = Object.fromEntries(form.entries());
-        const selectedRoles = Array.from(
-            document.getElementById("roles").selectedOptions
-        ).map(({ value }) => value);
-        register(
-            data.username,
-            data.email,
-            data.password,
-            data.confirm_password,
-            selectedRoles
-        )
-            .then(function (response) {
-                window.location.href = "index.html";
+        const data = {
+            username: username,
+            email: email,
+            password: password,
+            roles: roles
+        };
+        
+        if (!validate(username, email, password, confirmPassword)) {
+            return;
+        }
+
+        axios
+            .post(import.meta.env.VITE_API_URL + "/auth/signup", data)
+            .then(() => {
+                navigate("/login");
             })
-            .catch(function (error) {
-                alert(error.response.data.message);
+            .catch((error) => {
+                setErrorMessages([error.response.data.message]);
             });
     };
 
@@ -81,8 +118,8 @@ const Register = () => {
                     </div>
                     <div className="mb-3">
                         <label htmlFor="roles" className="form-label">Select your roles:</label>
-                        <select id="roles" className="form-select" name="roles" multiple aria-label="select roles">
-                            {roles.map((role) => (
+                        <select id="roles" className="form-select" name="roles" multiple aria-label="select roles" onChange={handleRolesChange}>
+                            {availableRoles.map((role) => (
                                 <option key={role.name} value={role.name}>{role.name}</option>
                             ))}
                         </select>
@@ -90,6 +127,11 @@ const Register = () => {
                     <div className="mb-3">
                         <Link to={"/login"} className="link">Already registered? Sign in</Link>
                     </div>
+                    {errorMessages.map((message, index) => (
+                        <div key={index} className="alert alert-danger" role="alert">
+                            {message}
+                        </div>
+                    ))}
                     <div className="text-center">
                         <button type="submit" className="btn btn-class">Register</button>
                     </div>
